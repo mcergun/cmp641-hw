@@ -1,9 +1,10 @@
 CC=gcc -Wall
 SRCDIR=src
 BUILDDIR=build
+EXECUTABLE=single
 
 single: create_builddir $(BUILDDIR)/single.o $(BUILDDIR)/imagehelper.o
-	$(CC) $(BUILDDIR)/single.o $(BUILDDIR)/imagehelper.o -o single
+	$(CC) $(BUILDDIR)/single.o $(BUILDDIR)/imagehelper.o -o $(EXECUTABLE)
 
 $(BUILDDIR)/imagehelper.o: $(SRCDIR)/imagehelper.c
 	$(CC) $(SRCDIR)/imagehelper.c -c -o $(BUILDDIR)/imagehelper.o
@@ -17,3 +18,4 @@ create_builddir:
 
 clean:
 	rm -f $(BUILDDIR)/*.o
+	rm -f $(EXECUTABLE)
