@@ -1,21 +1,31 @@
 #include "imagehelper.h"
+
 #include <stdlib.h>
-#include <time.h>
+#include <stdio.h>
 
 void analyzeArray(ImageData *img, int y1, int y2, int x1, int x2);
 unsigned char assignDirection(ImageData *img, int y, int x);
 
 int main(int argc, char *argv[])
 {
-	srand(time(0));
-	ImageData *img = initializeImageData(512, 640);
+	int width = 640;
+	int height = 512;
+	if(argc < 3)
+		printf("running with standard 512x640 image generation\n");
+	else 
+	{
+		height = atoi(argv[1]);
+		width = atoi(argv[2]);
+		printf("standard dimensions updated to %dx%d\n",
+			height, width);
+	}
+	ImageData *img = initializeImageData(height, width);
 	analyzeArray(img, 0, img->height, 0, img->width);
 	return 0;
 }
 
 void analyzeArray(ImageData *img, int y1, int y2, int x1, int x2)
 {
-	int max = 0;
 	for (int i = y1; i < y2; ++i)
 	{
 		for (int j = x1; j < x2; ++j)
@@ -32,30 +42,32 @@ unsigned char assignDirection(ImageData *img, int y, int x)
 {
 	int width = img->width;
 	int height = img->height;
-	unsigned char *buf = img->buf;
+	unsigned char **buf = img->buf;
 
 	int xMin = x > 1 ? x - 1 : 0;
 	int yMin = y > 1 ? y - 1 : 0;
 	int xMax = x < width - 2 ? x + 2 : width;
 	int yMax = y < height - 2 ? y + 2 : height;
 
-	// std::cout << "xMin = " << xMin << " xMax = " << xMax << std::endl;
-	// std::cout << "yMin = " << yMin << " yMax = " << yMax << std::endl;
+	// printf("xMin = %u, xMax = %u\n"
+	// 	"yMin = %u, yMax = %u\n", xMin, xMax, yMin, yMax);
 
-	unsigned char maxValue = buf[y * width + x];
+	unsigned char maxValue = buf[y][x];
 	int maxXLoc = x;
 	int maxYLoc = y;
 
 	for (int i = yMin; i < yMax; ++i) {
 		for (int j = xMin; j < xMax; ++j) {
+			// printf("%u, %u\n", i, j);
 			// std::cout << i << ", " << j << std::endl;
-			if(buf[i * width + j] > maxValue) {
-				maxValue = buf[i * width + j];
+			if(buf[i][j] > maxValue) {
+				maxValue = buf[i][j];
 				maxYLoc = i;
 				maxXLoc = j;
 			}
 		}
 	}
+	// printf("\n");
 
 	unsigned char direction = 0;
 
