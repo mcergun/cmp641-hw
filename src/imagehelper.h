@@ -7,4 +7,6 @@ typedef struct _imageData {
 	int height;
 } ImageData;
 
+ImageData * initializeImageData(int height, int width);
+
 #endif

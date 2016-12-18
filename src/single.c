@@ -1,20 +1,19 @@
 #include "imagehelper.h"
-#include <iostream>
-#include <cstdlib>
-#include <ctime>
+#include <stdlib.h>
+#include <time.h>
 
 void analyzeArray(ImageData *img, int y1, int y2, int x1, int x2);
 unsigned char assignDirection(ImageData *img, int y, int x);
 
 int main(int argc, char *argv[])
 {
-	std::srand(std::time(0));
+	srand(time(0));
 	ImageData img;
 	img.width = 640;
 	img.height = 512;
-	img.buf = new unsigned char[img.width * img.height];
+	img.buf = calloc(img.width * img.height, sizeof(unsigned char));
 	for(int i = 0; i < img.width * img.height; ++i) {
-		img.buf[i] = std::rand() % 256;
+		img.buf[i] = rand() % 256;
 	}
 	// assignDirection(&img, 7, 6);
 	analyzeArray(&img, 0, img.height, 0, img.width);
