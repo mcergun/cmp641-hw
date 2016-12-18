@@ -8,5 +8,6 @@ typedef struct _imageData {
 } ImageData;
 
 ImageData * initializeImageData(int height, int width);
+void destroyImageData(ImageData * img);
 
 #endif

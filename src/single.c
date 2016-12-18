@@ -8,15 +8,8 @@ unsigned char assignDirection(ImageData *img, int y, int x);
 int main(int argc, char *argv[])
 {
 	srand(time(0));
-	ImageData img;
-	img.width = 640;
-	img.height = 512;
-	img.buf = calloc(img.width * img.height, sizeof(unsigned char));
-	for(int i = 0; i < img.width * img.height; ++i) {
-		img.buf[i] = rand() % 256;
-	}
-	// assignDirection(&img, 7, 6);
-	analyzeArray(&img, 0, img.height, 0, img.width);
+	ImageData *img = initializeImageData(512, 640);
+	analyzeArray(img, 0, img->height, 0, img->width);
 	return 0;
 }
 
