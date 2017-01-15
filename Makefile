@@ -6,6 +6,9 @@ EXECUTABLE_M1=multiple1
 EXECUTABLE_M2=multiple2
 
 all: single multiple1 multiple2
+	@echo
+	@echo compile completed
+	@echo
 
 single: create_builddir $(BUILDDIR)/single.o $(BUILDDIR)/imagehelper.o
 	@echo linking $(EXECUTABLE_S)
@@ -40,7 +43,8 @@ create_builddir:
 	@mkdir -p $(BUILDDIR)	
 
 clean:
-	rm -f $(BUILDDIR)/*.o
-	rm -f $(EXECUTABLE_S)
-	rm -f $(EXECUTABLE_M1)
-	rm -f $(EXECUTABLE_M2)
+	@echo cleaning objects
+	@rm -f $(BUILDDIR)/*.o
+	@rm -f $(EXECUTABLE_S)
+	@rm -f $(EXECUTABLE_M1)
+	@rm -f $(EXECUTABLE_M2)

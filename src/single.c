@@ -2,9 +2,12 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <time.h>
+#include <sys/time.h>
 
 void analyzeArray(ImageData *img, int y1, int y2, int x1, int x2);
 unsigned char assignDirection(ImageData *img, int y, int x);
+double getWallTime();
 
 int main(int argc, char *argv[])
 {
@@ -26,6 +29,8 @@ int main(int argc, char *argv[])
 
 void analyzeArray(ImageData *img, int y1, int y2, int x1, int x2)
 {
+	double start = getWallTime();
+
 	for (int i = y1; i < y2; ++i)
 	{
 		for (int j = x1; j < x2; ++j)
@@ -33,6 +38,12 @@ void analyzeArray(ImageData *img, int y1, int y2, int x1, int x2)
 			assignDirection(img, i, j);
 		}
 	}
+
+	double end = getWallTime();
+
+	printf("\n########################################\n\n"
+		"Time Difference = %.8f\n\n"
+		"########################################\n\n\n", end - start);
 }
 
 // 8 1 2
@@ -67,6 +78,7 @@ unsigned char assignDirection(ImageData *img, int y, int x)
 			}
 		}
 	}
+
 	// printf("\n");
 
 	unsigned char direction = 0;
@@ -89,4 +101,13 @@ unsigned char assignDirection(ImageData *img, int y, int x)
 	// std::cout << (int)maxValue << "  " << y << ", " << x << " " 
 	// 	<< " (" << maxYLoc << ", " << maxXLoc << ") " << (int)direction << std::endl;
 	return direction;
+}
+
+double getWallTime(){
+    struct timeval time;
+    if (gettimeofday(&time,NULL)){
+        //  Handle error
+        return 0;
+    }
+    return (double)time.tv_sec + (double)time.tv_usec * .000001;
 }

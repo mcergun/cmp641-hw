@@ -15,7 +15,6 @@ int thread_count = 6;
 
 int main(int argc, char *argv[])
 {
-	printf("asda\n");
 	if(argc == 2) {
 		thread_count = atoi(argv[1]);
 		printf("setting thread num to %d\n", thread_count);	
@@ -38,14 +37,24 @@ int main(int argc, char *argv[])
 
 void analyzeArray(ImageData *img, int y1, int y2, int x1, int x2)
 {
-	#pragma omp parallel for num_threads(thread_count)
-	for (int i = y1; i < y2; ++i)
+	double start = omp_get_wtime();
+
+	#pragma omp parallel num_threads(thread_count) 
 	{
-		for (int j = x1; j < x2; ++j)
+		#pragma omp for
+		for (int i = y1; i < y2; ++i)
 		{
-			assignDirection(img, i, j);
+			for (int j = x1; j < x2; ++j)
+			{
+				assignDirection(img, i, j);
+			}
 		}
 	}
+	double end = omp_get_wtime();
+
+	printf("\n########################################\n\n"
+		"Time Difference = %.8f\n\n"
+		"########################################\n\n\n", end - start);
 }
 
 // 8 1 2
