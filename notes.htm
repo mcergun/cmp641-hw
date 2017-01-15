@@ -1,0 +1,30 @@
+<p>Optimization 1:<br />
+Instead of using&nbsp;</p>
+
+
+<pre style='color:#000000;background:#ffffff;'><span style='color:#004a43; '>#</span><span style='color:#004a43; font-weight:bold; '>pragma</span><span style='color:#bb7977; font-weight:bold; '> omp parallel for num_threads(thread_count)</span>
+<span style='color:#800000; font-weight:bold; '>for</span> <span style='color:#808030; '>(</span><span style='color:#800000; font-weight:bold; '>int</span> i <span style='color:#808030; '>=</span> y1<span style='color:#800080; '>;</span> i <span style='color:#808030; '>&lt;</span> y2<span style='color:#800080; '>;</span> <span style='color:#808030; '>+</span><span style='color:#808030; '>+</span>i<span style='color:#808030; '>)</span>
+<span style='color:#800080; '>{</span>
+	<span style='color:#800000; font-weight:bold; '>for</span> <span style='color:#808030; '>(</span><span style='color:#800000; font-weight:bold; '>int</span> j <span style='color:#808030; '>=</span> x1<span style='color:#800080; '>;</span> j <span style='color:#808030; '>&lt;</span> x2<span style='color:#800080; '>;</span> <span style='color:#808030; '>+</span><span style='color:#808030; '>+</span>j<span style='color:#808030; '>)</span>
+	<span style='color:#800080; '>{</span>
+		assignDirection<span style='color:#808030; '>(</span>img<span style='color:#808030; '>,</span> i<span style='color:#808030; '>,</span> j<span style='color:#808030; '>)</span><span style='color:#800080; '>;</span>
+	<span style='color:#800080; '>}</span>
+<span style='color:#800080; '>}</span>
+</pre>
+
+<p>I used&nbsp;</p>
+<pre style='color:#000000;background:#ffffff;'>
+<span style='color:#004a43; '>#</span><span style='color:#004a43; font-weight:bold; '>pragma</span><span style='color:#bb7977; font-weight:bold; '> omp parallel num_threads(thread_count) </span>
+<span style='color:#800080; '>{</span>
+<span style='color:#004a43; '>	</span><span style='color:#004a43; '>#</span><span style='color:#004a43; font-weight:bold; '>pragma</span><span style='color:#bb7977; font-weight:bold; '> omp for</span>
+	<span style='color:#800000; font-weight:bold; '>for</span> <span style='color:#808030; '>(</span><span style='color:#800000; font-weight:bold; '>int</span> i <span style='color:#808030; '>=</span> y1<span style='color:#800080; '>;</span> i <span style='color:#808030; '>&lt;</span> y2<span style='color:#800080; '>;</span> <span style='color:#808030; '>+</span><span style='color:#808030; '>+</span>i<span style='color:#808030; '>)</span>
+	<span style='color:#800080; '>{</span>
+		<span style='color:#800000; font-weight:bold; '>for</span> <span style='color:#808030; '>(</span><span style='color:#800000; font-weight:bold; '>int</span> j <span style='color:#808030; '>=</span> x1<span style='color:#800080; '>;</span> j <span style='color:#808030; '>&lt;</span> x2<span style='color:#800080; '>;</span> <span style='color:#808030; '>+</span><span style='color:#808030; '>+</span>j<span style='color:#808030; '>)</span>
+		<span style='color:#800080; '>{</span>
+			assignDirection<span style='color:#808030; '>(</span>img<span style='color:#808030; '>,</span> i<span style='color:#808030; '>,</span> j<span style='color:#808030; '>)</span><span style='color:#800080; '>;</span>
+		<span style='color:#800080; '>}</span>
+	<span style='color:#800080; '>}</span>
+<span style='color:#800080; '>}</span>
+</pre>
+
+<p>This optimization, saved the system from forking same number of threads for each iteration. Thus gaining us around 10 - 15% performance.</p>

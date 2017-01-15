@@ -1,0 +1,27 @@
+Optimization 1:
+Instead of using 
+
+#pragma omp parallel for num_threads(thread_count)
+for (int i = y1; i < y2; ++i)
+{
+	for (int j = x1; j < x2; ++j)
+	{
+		assignDirection(img, i, j);
+	}
+}
+
+I used 
+
+#pragma omp parallel num_threads(thread_count) 
+{
+	#pragma omp for
+	for (int i = y1; i < y2; ++i)
+	{
+		for (int j = x1; j < x2; ++j)
+		{
+			assignDirection(img, i, j);
+		}
+	}
+}
+
+This optimization, saved the system from forking same number of threads for each iteration. Thus gaining us around 10 - 15% performance.
