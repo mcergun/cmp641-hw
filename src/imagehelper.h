@@ -2,7 +2,7 @@
 #define __IMAGE_HELPER__
 
 typedef struct _imageData {
-	unsigned char **buf;
+	unsigned char *buf;
 	int width;
 	int height;
 } ImageData;
@@ -10,6 +10,6 @@ typedef struct _imageData {
 ImageData * initializeImageData(int height, int width);
 void destroyImageData(ImageData * img);
 
-unsigned char ** allocate2dBuffer(int rows, int cols);
+unsigned char assignDirection(ImageData *img, int y, int x);
 
 #endif

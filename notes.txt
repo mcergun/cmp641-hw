@@ -1,5 +1,6 @@
 Optimization 1:
-Instead of using 
+Instead of using pragma to generate
+Old version:
 
 #pragma omp parallel for num_threads(thread_count)
 for (int i = y1; i < y2; ++i)
@@ -10,7 +11,7 @@ for (int i = y1; i < y2; ++i)
 	}
 }
 
-I used 
+Optimized version:
 
 #pragma omp parallel num_threads(thread_count) 
 {
@@ -25,3 +26,7 @@ I used
 }
 
 This optimization, saved the system from forking same number of threads for each iteration. Thus gaining us around 10 - 15% performance.
+
+Optimization 2:
+
+Instead of using 2d arrays, I used 1d array with 2d mappings. This netted around %80 performance gain on both serial and parallel code.
