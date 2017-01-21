@@ -18,21 +18,24 @@ int width = 640;
 int height = 512;
 int thread_count = 6;
 int iterations = 20;
+int run_single = 0;
 
 int main(int argc, char *argv[])
 {
 	if(argc == 2) {
 		thread_count = atoi(argv[1]);
 		printf("setting thread num to %d\n", thread_count);	
-	} else if(argc == 3) {
+	} else if(argc == 4) {
 		thread_count = atoi(argv[1]);
 		iterations = atoi(argv[2]);
+		run_single = atoi(argv[3]);
 		printf("setting thread num to %d\n", thread_count);
-	} else if(argc > 4) {
+	} else if(argc > 5) {
 		thread_count = atoi(argv[1]);
 		iterations = atoi(argv[2]);
-		height = atoi(argv[3]);
-		width = atoi(argv[4]);
+		run_single = atoi(argv[3]);
+		height = atoi(argv[4]);
+		width = atoi(argv[5]);
 		printf("standard dimensions updated to %dx%d\n",
 			height, width);
 		printf("setting thread num to %d\n", thread_count);	
@@ -44,12 +47,15 @@ int main(int argc, char *argv[])
 	ImageData *img = initializeImageData(height, width);
 	double avg = 0;
 
-	// for (int i = 0; i < iterations; ++i)
-	// {
-	// 	avg = (avg * i + analyzeArrayS(img)) / (i + 1);
-	// }
-	// printf("Single tests run for %d times\n", iterations);
-	// printResult(avg);
+	if (run_single)
+	{
+		for (int i = 0; i < iterations; ++i)
+		{
+			avg = (avg * i + analyzeArrayS(img)) / (i + 1);
+		}
+		printf("Single tests run for %d times\n", iterations);
+		printResult(avg);
+	}
 
 	avg = 0;
 	for (int i = 0; i < iterations; ++i)
