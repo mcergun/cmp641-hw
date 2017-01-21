@@ -30,7 +30,15 @@ int main(int argc, char *argv[])
 	}
 	// printf("parallelism_enabled = %d\n", parallelism_enabled);
 	ImageData *img = initializeImageData(height, width);
-	printResult(analyzeArray(img));
+	double avg = 0;
+
+	for (int i = 0; i < 20; ++i)
+	{
+		avg = (avg * i + analyzeArray(img)) / (i + 1);
+	}
+	printf("Multiple1 tests run for 20 times\n");
+	printResult(avg);
+	
 	return 0;
 }
 
