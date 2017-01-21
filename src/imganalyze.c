@@ -11,6 +11,7 @@ extern int parallelism_enabled;
 double getWallTime();
 double analyzeArrayS(ImageData *img);
 double analyzeArrayM1(ImageData *img);
+double analyzeArrayM1wC(ImageData *img);
 double analyzeArrayM2(ImageData *img);
 
 int width = 640;
@@ -43,12 +44,12 @@ int main(int argc, char *argv[])
 	ImageData *img = initializeImageData(height, width);
 	double avg = 0;
 
-	for (int i = 0; i < iterations; ++i)
-	{
-		avg = (avg * i + analyzeArrayS(img)) / (i + 1);
-	}
-	printf("Single tests run for %d times\n", iterations);
-	printResult(avg);
+	// for (int i = 0; i < iterations; ++i)
+	// {
+	// 	avg = (avg * i + analyzeArrayS(img)) / (i + 1);
+	// }
+	// printf("Single tests run for %d times\n", iterations);
+	// printResult(avg);
 
 	avg = 0;
 	for (int i = 0; i < iterations; ++i)
@@ -56,6 +57,14 @@ int main(int argc, char *argv[])
 		avg = (avg * i + analyzeArrayM1(img)) / (i + 1);
 	}
 	printf("Multiple1 tests run for %d times\n", iterations);
+	printResult(avg);
+
+	avg = 0;
+	for (int i = 0; i < iterations; ++i)
+	{
+		avg = (avg * i + analyzeArrayM1wC(img)) / (i + 1);
+	}
+	printf("Multiple1 with collapse(2) tests run for %d times\n", iterations);
 	printResult(avg);
 
 	avg = 0;
@@ -102,6 +111,31 @@ double analyzeArrayS(ImageData *img)
 }
 
 double analyzeArrayM1(ImageData *img)
+{
+	int y1 = 0;
+	int y2 = img->height;
+	int x1 = 0;
+	int x2 = img->width;
+
+	double start = omp_get_wtime();
+
+	#pragma omp parallel num_threads(thread_count) 
+	{
+		#pragma omp for
+		for (int i = y1; i < y2; ++i)
+		{
+			for (int j = x1; j < x2; ++j)
+			{
+				assignDirection(img, i, j);
+			}
+		}
+	}
+	double end = omp_get_wtime();
+
+	return end - start;
+}
+
+double analyzeArrayM1wC(ImageData *img)
 {
 	int y1 = 0;
 	int y2 = img->height;
