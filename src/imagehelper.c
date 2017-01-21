@@ -17,6 +17,16 @@ ImageData * initializeImageData(int height, int width)
 	return img;
 }
 
+ImageData * initializeEmptyImageData(int height, int width)
+{
+	srand(time(0));
+	ImageData *img = calloc(1, sizeof(ImageData));
+	img->width = width;
+	img->height = height;
+	img->buf = calloc(1, sizeof(unsigned char *) * width * height);
+	return img;
+}
+
 void destroyImageData(ImageData * img)
 {
 	//free row buffer holders
@@ -32,6 +42,87 @@ void destroyImageData(ImageData * img)
 unsigned char assignDirection(ImageData *img, int y, int x)
 {
 	int width = img->width;
+	int height = img->height;
+	unsigned char *buf = img->buf;
+
+	int pos = y * width + x;
+
+	// printf("xMin = %u, xMax = %u\n"
+	// 	"yMin = %u, yMax = %u\n", xMin, xMax, yMin, yMax);
+
+	unsigned char maxValue = buf[pos];
+	int direction = 10;
+
+	if(maxValue < buf[pos - width - 1]) {
+		maxValue = buf[pos - width - 1];
+		direction = 8;
+	}
+	if(maxValue < buf[pos - width]) {
+		maxValue = buf[pos - width];
+		direction = 1;
+	}
+	if(maxValue < buf[pos - width + 1]) {
+		maxValue = buf[pos - width + 1];
+		direction = 2;
+	}
+	if(maxValue < buf[pos - 1]) {
+		maxValue = buf[pos - 1];
+		direction = 7;
+	}
+	if(maxValue < buf[pos + 1]) {
+		maxValue = buf[pos + 1];
+		direction = 3;
+	}
+	if(maxValue < buf[pos + width - 1]) {
+		maxValue = buf[pos - width - 1];
+		direction = 6;
+	}
+	if(maxValue < buf[pos + width]) {
+		maxValue = buf[pos - width];
+		direction = 5;
+	}
+	if(maxValue < buf[pos + width + 1]) {
+		maxValue = buf[pos - width + 1];
+		direction = 4;
+	}
+
+	// for (int i = yMin; i < yMax; ++i) {
+	// 	for (int j = xMin; j < xMax; ++j) {
+	// 		// printf("%u, %u\n", i, j);
+	// 		// std::cout << i << ", " << j << std::endl;
+	// 		if(buf[pos] > maxValue) {
+	// 			maxValue = buf[pos];
+	// 			maxYLoc = i;
+	// 			maxXLoc = j;
+	// 		}
+	// 	}
+	// }
+	// // printf("\n");
+
+	// unsigned char direction = 0;
+
+	// switch(maxXLoc - x) {
+	// case -1:
+	// 	direction = 7 + y - maxYLoc;
+	// 	break;
+	// case 0:
+	// 	direction = maxYLoc - y ? (maxYLoc - y > 0 ? 5 : 1) : 0;
+	// 	break;
+	// case 1:
+	// 	direction = 3 + maxYLoc - y;
+	// 	break;
+	// default:
+	// 	// std::cout << "something is going wrong" << std::endl;
+	// 	break;
+	// }
+
+	// std::cout << (int)maxValue << "  " << y << ", " << x << " " 
+	// 	<< " (" << maxYLoc << ", " << maxXLoc << ") " << (int)direction << std::endl;
+	return direction;
+}
+
+unsigned char sumAndCompare(ImageData *img, int y, int x, )
+{	int width = img->width;
 	int height = img->height;
 	unsigned char *buf = img->buf;
 
