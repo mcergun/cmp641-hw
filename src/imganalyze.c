@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
 	printf("Single tests run for 50 times\n");
 	printResult(avg);
 
-	return 0;
+	avg = 0;
 	for (int i = 0; i < 50; ++i)
 	{
 		avg = (avg * i + analyzeArrayM1(img)) / (i + 1);
@@ -52,6 +52,7 @@ int main(int argc, char *argv[])
 	printf("Multiple1 tests run for 50 times\n");
 	printResult(avg);
 
+	avg = 0;
 	for (int i = 0; i < 50; ++i)
 	{
 		avg = (avg * i + analyzeArrayM2(img)) / (i + 1);
