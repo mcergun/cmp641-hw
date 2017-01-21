@@ -2,6 +2,7 @@
 
 #include <stdlib.h>
 #include <time.h>
+#include <stdio.h>
 
 ImageData * initializeImageData(int height, int width)
 {

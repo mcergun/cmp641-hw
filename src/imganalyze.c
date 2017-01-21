@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <omp.h>
+#include <time.h>
+#include <sys/time.h>
 
 extern int parallelism_enabled;
 
