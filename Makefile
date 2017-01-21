@@ -1,4 +1,5 @@
 CC=gcc -Wall
+CFLAGS=-fopenmp
 SRCDIR=src
 BUILDDIR=build
 EXECUTABLE=imganalyze
@@ -10,15 +11,15 @@ all: imganalyze
 
 imganalyze: create_builddir $(BUILDDIR)/imganalyze.o $(BUILDDIR)/imagehelper.o
 	@echo linking $(EXECUTABLE)
-	@$(CC) -fopenmp $(BUILDDIR)/imganalyze.o $(BUILDDIR)/imagehelper.o -o $(EXECUTABLE)
+	@$(CC) $(CFLAGS) $(BUILDDIR)/imganalyze.o $(BUILDDIR)/imagehelper.o -o $(EXECUTABLE) -lm
 
 $(BUILDDIR)/imagehelper.o: $(SRCDIR)/imagehelper.c
 	@echo compiling imagehelper
-	@$(CC) $(SRCDIR)/imagehelper.c -c -o $(BUILDDIR)/imagehelper.o
+	@$(CC) $(CFLAGS) $(SRCDIR)/imagehelper.c -c -o $(BUILDDIR)/imagehelper.o -lm
 
 $(BUILDDIR)/imganalyze.o: $(SRCDIR)/imganalyze.c
 	@echo compiling $(EXECUTABLE)
-	@$(CC) -fopenmp $(SRCDIR)/imganalyze.c -c -o $(BUILDDIR)/imganalyze.o
+	@$(CC) $(CFLAGS) $(SRCDIR)/imganalyze.c -c -o $(BUILDDIR)/imganalyze.o
 
 create_builddir:
 	@mkdir -p $(BUILDDIR)	

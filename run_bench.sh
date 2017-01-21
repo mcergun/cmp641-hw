@@ -1,9 +1,9 @@
 make clean
 make
-WIDTH=500
-HEIGHT=500
+WIDTH=5000
+HEIGHT=5000
 NUM_CORES=6
-ITERATIONS=100
+ITERATIONS=10
 echo "running test with randomly generated image of size $WIDTH x $HEIGHT"
 echo "single core"
 ./imganalyze $NUM_CORES $ITERATIONS 1 $HEIGHT $WIDTH

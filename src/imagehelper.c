@@ -1,8 +1,17 @@
 #include "imagehelper.h"
 
 #include <stdlib.h>
-#include <time.h>
 #include <stdio.h>
+#include <omp.h>
+#include <time.h>
+#include <math.h>
+
+static int width = 640;
+static int height = 512;
+static int thread_count = 6;
+
+static int xx[] = {0, 1, 1, 1, 0, -1, -1, -1};
+static int yy[] = {-1, -1, 0, 1, 1, 1, 0, -1};
 
 ImageData * initializeImageData(int height, int width)
 {
@@ -39,10 +48,9 @@ void destroyImageData(ImageData * img)
 // 8 1 2
 // 7 0 3
 // 6 5 4
-unsigned char assignDirection(ImageData *img, int y, int x)
+void assignDirection(ImageData *img, ImageData *dest, int y, int x)
 {
 	int width = img->width;
-	int height = img->height;
 	unsigned char *buf = img->buf;
 
 	int pos = y * width + x;
@@ -53,6 +61,8 @@ unsigned char assignDirection(ImageData *img, int y, int x)
 	unsigned char maxValue = buf[pos];
 	int direction = 10;
 
+	// don't want to use a for loop for a 3x3 grid
+	// it may reduce the performance as it will get called so often
 	if(maxValue < buf[pos - width - 1]) {
 		maxValue = buf[pos - width - 1];
 		direction = 8;
@@ -86,98 +96,229 @@ unsigned char assignDirection(ImageData *img, int y, int x)
 		direction = 4;
 	}
 
-	// for (int i = yMin; i < yMax; ++i) {
-	// 	for (int j = xMin; j < xMax; ++j) {
-	// 		// printf("%u, %u\n", i, j);
-	// 		// std::cout << i << ", " << j << std::endl;
-	// 		if(buf[pos] > maxValue) {
-	// 			maxValue = buf[pos];
-	// 			maxYLoc = i;
-	// 			maxXLoc = j;
-	// 		}
-	// 	}
-	// }
-	// // printf("\n");
-
-	// unsigned char direction = 0;
-
-	// switch(maxXLoc - x) {
-	// case -1:
-	// 	direction = 7 + y - maxYLoc;
-	// 	break;
-	// case 0:
-	// 	direction = maxYLoc - y ? (maxYLoc - y > 0 ? 5 : 1) : 0;
-	// 	break;
-	// case 1:
-	// 	direction = 3 + maxYLoc - y;
-	// 	break;
-	// default:
-	// 	// std::cout << "something is going wrong" << std::endl;
-	// 	break;
-	// }
-
-	// std::cout << (int)maxValue << "  " << y << ", " << x << " " 
-	// 	<< " (" << maxYLoc << ", " << maxXLoc << ") " << (int)direction << std::endl;
-	return direction;
+	dest->buf[pos] = direction;
 }
 
-unsigned char sumAndCompare(ImageData *img, int y, int x, )
-{	int width = img->width;
+void sumAndCompare(ImageData *img, ImageData *dest, int y, int x, int limit)
+{	
+	int width = img->width;
 	int height = img->height;
 	unsigned char *buf = img->buf;
 
-	int pos = y * width + x;
+	int posOrig = (y - 2) * width + x;
+	int pos = posOrig;
 
-	int xMin = x > 1 ? x - 1 : 0;
-	int yMin = y > 1 ? y - 1 : 0;
-	int xMax = x < width - 2 ? x + 2 : width;
-	int yMax = y < height - 2 ? y + 2 : height;
+	unsigned char *imgbuf = img->buf;
+	unsigned char *destbuf = dest->buf;
 
-	// printf("xMin = %u, xMax = %u\n"
-	// 	"yMin = %u, yMax = %u\n", xMin, xMax, yMin, yMax);
+	int xtop = 0;
+	int ytop = 0;
 
-	unsigned char maxValue = buf[pos];
-	int maxXLoc = x;
-	int maxYLoc = y;
-
-	for (int i = yMin; i < yMax; ++i) {
-		for (int j = xMin; j < xMax; ++j) {
-			// printf("%u, %u\n", i, j);
-			// std::cout << i << ", " << j << std::endl;
-			if(buf[pos] > maxValue) {
-				maxValue = buf[pos];
-				maxYLoc = i;
-				maxXLoc = j;
+	for (int i = 0; i < 5; ++i)
+	{
+		pos = pos + width * i;
+		for (int j = 0; j < 5; ++j)
+		{
+			if(imgbuf[pos + j]) {
+				xtop = xtop + xx[imgbuf[pos + j]];
+				ytop = ytop + yy[imgbuf[pos + j]];
 			}
 		}
 	}
-	// printf("\n");
 
-	unsigned char direction = 0;
+	int result = sqrt(pow(xtop, 2) + pow(ytop, 2));
 
-	switch(maxXLoc - x) {
-	case -1:
-		direction = 7 + y - maxYLoc;
-		break;
-	case 0:
-		direction = maxYLoc - y ? (maxYLoc - y > 0 ? 5 : 1) : 0;
-		break;
-	case 1:
-		direction = 3 + maxYLoc - y;
-		break;
-	default:
-		// std::cout << "something is going wrong" << std::endl;
-		break;
-	}
+	if(result < limit)
+		result = 0;
 
-	// std::cout << (int)maxValue << "  " << y << ", " << x << " " 
-	// 	<< " (" << maxYLoc << ", " << maxXLoc << ") " << (int)direction << std::endl;
-	return direction;
+	dest->buf[posOrig] = result;
 }
 
 void printResult(double val)
 {
 	printf("\n########################################\n\n"
-		"Time Difference = %.8f\n\n"
-		"########################################\n\n\n", val);
+		"Time Difference = %.4fms\n\n"
+		"########################################\n\n\n", val * 1000);
+}
+
+double analyzeArrayS(ImageData *src, ImageData *dest, ImageData *dest2)
+{
+	int height = src->height;
+	int width = src->width;
+	int y1 = 1;
+	int y2 = height - 1;
+	int x1 = 1;
+	int x2 = width - 1;
+
+	double start = getWallTime();
+
+	for (int i = y1; i < y2; ++i)
+	{
+		for (int j = x1; j < x2; ++j)
+		{
+			assignDirection(src, dest, i, j);
+		}
+	}
+
+	y1 = 2;
+	y2 = height - 2;
+	x1 = 2;
+	x2 = width -2;
+
+	for (int i = y1; i < y2; ++i)
+	{
+		for (int j = x1; j < x2; ++j)
+		{
+			sumAndCompare(dest, dest2, i, j, 4);
+		}
+	}
+
+	double end = getWallTime();
+
+	return end - start;
+}
+
+double analyzeArrayM1(ImageData *src, ImageData *dest, ImageData *dest2)
+{
+	int height = src->height;
+	int width = src->width;
+	int y1 = 1;
+	int y2 = height - 1;
+	int x1 = 1;
+	int x2 = width - 1;
+
+	double start = omp_get_wtime();
+
+	#pragma omp parallel num_threads(thread_count) 
+	{
+		#pragma omp for
+		for (int i = y1; i < y2; ++i)
+		{
+			for (int j = x1; j < x2; ++j)
+			{
+				assignDirection(src, dest, i, j);
+			}
+		}
+	}
+
+	y1 = 2;
+	y2 = height - 2;
+	x1 = 2;
+	x2 = width -2;
+
+	for (int i = y1; i < y2; ++i)
+	{
+		for (int j = x1; j < x2; ++j)
+		{
+			sumAndCompare(dest, dest2, i, j, 4);
+		}
+	}
+
+	double end = omp_get_wtime();
+
+	return end - start;
+}
+
+double analyzeArrayM1wC(ImageData *src, ImageData *dest, ImageData *dest2)
+{
+	int height = src->height;
+	int width = src->width;
+	int y1 = 1;
+	int y2 = height - 1;
+	int x1 = 1;
+	int x2 = width - 1;
+
+	double start = omp_get_wtime();
+
+	#pragma omp parallel num_threads(thread_count) 
+	{
+		#pragma omp for collapse(2)
+		for (int i = y1; i < y2; ++i)
+		{
+			for (int j = x1; j < x2; ++j)
+			{
+				assignDirection(src, dest, i, j);
+			}
+		}
+	}
+
+	y1 = 2;
+	y2 = height - 2;
+	x1 = 2;
+	x2 = width -2;
+
+	for (int i = y1; i < y2; ++i)
+	{
+		for (int j = x1; j < x2; ++j)
+		{
+			sumAndCompare(dest, dest2, i, j, 4);
+		}
+	}
+
+	double end = omp_get_wtime();
+
+	return end - start;
+}
+
+double analyzeArrayM2(ImageData *src, ImageData *dest, ImageData *dest2)
+{
+	int height = src->height;
+	int width = src->width;
+	int y1 = 1;
+	int y2 = height - 1;
+	int x1 = 1;
+	int x2 = width - 1;
+
+	double start = omp_get_wtime();
+
+	#pragma omp parallel num_threads(thread_count) 
+	{
+		#pragma omp for
+		for (int i = y1; i < y2; ++i)
+		{
+			for (int j = x1; j < x2; ++j)
+			{
+				assignDirection(src, dest, i, j);
+			}
+		}
+	}
+
+	y1 = 2;
+	y2 = height - 2;
+	x1 = 2;
+	x2 = width -2;
+
+	for (int i = y1; i < y2; ++i)
+	{
+		for (int j = x1; j < x2; ++j)
+		{
+			sumAndCompare(dest, dest2, i, j, 4);
+		}
+	}
+
+	double end = omp_get_wtime();
+
+	return end - start;
+}
+
+int compareImages(ImageData *img1, ImageData *img2)
+{
+	if((img1->width != img2->width) ||
+		(img1->height != img2->height))
+		return -1;
+
+	int width = img1->width;
+	int height = img1->height;
+	int bufSize = width * height;
+
+	unsigned char *buf1 = img1->buf;
+	unsigned char *buf2 = img2->buf;
+
+	int isEqual = 1;
+	for (int i = 0; i < bufSize && isEqual; ++i)
+	{
+		isEqual = buf1[i] == buf2[i];
+	}
+
+	return isEqual;
 }
