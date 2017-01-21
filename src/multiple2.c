@@ -6,7 +6,7 @@
 
 extern int parallelism_enabled;
 
-void analyzeArray(ImageData *img, int y1, int y2, int x1, int x2);
+double analyzeArray(ImageData *img);
 
 int thread_count = 6;
 int width = 640;
@@ -30,12 +30,17 @@ int main(int argc, char *argv[])
 	}
 	// printf("parallelism_enabled = %d\n", parallelism_enabled);
 	ImageData *img = initializeImageData(height, width);
-	analyzeArray(img, 0, img->height, 0, img->width);
+	printResult(analyzeArray(img));
 	return 0;
 }
 
-void analyzeArray(ImageData *img, int y1, int y2, int x1, int x2)
+double analyzeArray(ImageData *img)
 {
+	int y1 = 0;
+	int y2 = img->height;
+	int x1 = 0;
+	int x2 = img->width;
+
 	double start = omp_get_wtime();
 
 	#pragma omp parallel num_threads(thread_count) 
@@ -52,7 +57,5 @@ void analyzeArray(ImageData *img, int y1, int y2, int x1, int x2)
 
 	double end = omp_get_wtime();
 
-	printf("\n########################################\n\n"
-		"Time Difference = %.8f\n\n"
-		"########################################\n\n\n", end - start);
+	return end - start;
 }

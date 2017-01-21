@@ -12,4 +12,6 @@ void destroyImageData(ImageData * img);
 
 unsigned char assignDirection(ImageData *img, int y, int x);
 
+void printResult(double val);
+
 #endif

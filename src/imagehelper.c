@@ -82,3 +82,10 @@ unsigned char assignDirection(ImageData *img, int y, int x)
 	// 	<< " (" << maxYLoc << ", " << maxXLoc << ") " << (int)direction << std::endl;
 	return direction;
 }
+
+void printResult(double val)
+{
+	printf("\n########################################\n\n"
+		"Time Difference = %.8f\n\n"
+		"########################################\n\n\n", val);
+}

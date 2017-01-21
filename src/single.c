@@ -5,8 +5,7 @@
 #include <time.h>
 #include <sys/time.h>
 
-void analyzeArray(ImageData *img, int y1, int y2, int x1, int x2);
-void analyzeArray2(ImageData *img);
+void analyzeArray(ImageData *img);
 double getWallTime();
 
 int main(int argc, char *argv[])
@@ -23,37 +22,17 @@ int main(int argc, char *argv[])
 			height, width);
 	}
 	ImageData *img = initializeImageData(height, width);
-	analyzeArray(img, 0, img->height, 0, img->width);
-	analyzeArray2(img);
+	analyzeArray(img);
 	return 0;
 }
 
-void analyzeArray2(ImageData *img)
+void analyzeArray(ImageData *img)
 {
-	int width = img->width;
-	int height = img->height;
+	int y1 = 0;
+	int y2 = img->height;
+	int x1 = 0;
+	int x2 = img->width;
 
-	int size = width * height;
-	int ypos = 0;
-	int xpos = 0;
-
-	double start = getWallTime();
-
-	for (int i = 0; i < size; ++i) {
-		xpos = i % width;
-		ypos = i / width;
-		assignDirection(img, xpos, ypos);
-	}
-
-	double end = getWallTime();
-
-	printf("\n########################################\n\n"
-		"Time Difference = %.8f\n\n"
-		"########################################\n\n\n", end - start);
-}
-
-void analyzeArray(ImageData *img, int y1, int y2, int x1, int x2)
-{
 	double start = getWallTime();
 
 	for (int i = y1; i < y2; ++i)
@@ -66,9 +45,7 @@ void analyzeArray(ImageData *img, int y1, int y2, int x1, int x2)
 
 	double end = getWallTime();
 
-	printf("\n########################################\n\n"
-		"Time Difference = %.8f\n\n"
-		"########################################\n\n\n", end - start);
+	printResult(end - start);
 }
 
 double getWallTime(){
