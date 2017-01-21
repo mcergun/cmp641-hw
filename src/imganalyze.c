@@ -5,100 +5,40 @@
 #include <omp.h>
 #include <time.h>
 #include <sys/time.h>
+#include <math.h>
+
+#define CALL_IMPL(function_p, src_p, intmd_p, result_p) \
+{\
+	double avg = 0.0; \
+	for(int i = 0; i < 10; i++) { \
+		avg = (avg * i + function_p(src_p, intmd_p, result_p, 4)) / (i + 1); \
+	} \
+	printResult(avg); \
+}
 
 extern int parallelism_enabled;
 
 double getWallTime();
 
-int width = 640;
-int height = 512;
+double singleImpl(ImageData *src, ImageData *intmd, ImageData *result, int limit);
+
+int width = 2000;
+int height = 2000;
 int thread_count = 6;
 int iterations = 20;
 int run_single = 0;
 
+// ImageData * initializeImageData(int height, int width);
+// ImageData * initializeEmptyImageData(int height, int width);
+
 int main(int argc, char *argv[])
 {
-	if(argc == 2) {
-		thread_count = atoi(argv[1]);
-		printf("setting thread num to %d\n", thread_count);	
-	} else if(argc == 4) {
-		thread_count = atoi(argv[1]);
-		iterations = atoi(argv[2]);
-		run_single = atoi(argv[3]);
-		printf("setting thread num to %d\n", thread_count);
-	} else if(argc > 5) {
-		thread_count = atoi(argv[1]);
-		iterations = atoi(argv[2]);
-		run_single = atoi(argv[3]);
-		height = atoi(argv[4]);
-		width = atoi(argv[5]);
-		printf("standard dimensions updated to %dx%d\n",
-			height, width);
-		printf("setting thread num to %d\n", thread_count);	
-	} else {
-		printf("running with standard 512x640 image generation\n");	
-		printf("setting thread num to %d\n", thread_count);	
-	}
-	// printf("parallelism_enabled = %d\n", parallelism_enabled);
 	ImageData *src = initializeImageData(height, width);
-	ImageData *dests1;
-	ImageData *dests2;
-	if(run_single) {
-		dests1 = initializeEmptyImageData(height, width);
-		dests2 = initializeEmptyImageData(height, width);
-	}
-	ImageData *destm1 = initializeEmptyImageData(height, width);
-	ImageData *destm2 = initializeEmptyImageData(height, width);
-	double avg = 0;
+	ImageData *intmd = initializeEmptyImageData(height, width);
+	ImageData *result = initializeEmptyImageData(height, width);
 
-	if (run_single)
-	{
-		for (int i = 0; i < iterations; ++i)
-		{
-			avg = (avg * i + analyzeArrayS(src, dests1, dests2)) / (i + 1);
-		}
-		printf("Single tests run for %d times\n", iterations);
-		printResult(avg);
-	}
+	CALL_IMPL(singleImpl, src, intmd, result);
 
-	avg = 0;
-	for (int i = 0; i < iterations; ++i)
-	{
-		avg = (avg * i + analyzeArrayM1wC(src, destm1, destm2)) / (i + 1);
-	}
-	printf("Multiple1 tests run for %d times\n", iterations);
-	if(run_single) {
-		printf("Comparing resulting arrays\n");
-		printf("Comparison Result = %d\n", compareImages(dests1, destm1));
-		printf("Comparison Result = %d\n", compareImages(dests2, destm2));
-	}
-	printResult(avg);
-
-	avg = 0;
-	for (int i = 0; i < iterations; ++i)
-	{
-		avg = (avg * i + analyzeArrayM1wC(src, destm1, destm2)) / (i + 1);
-	}
-	printf("Multiple1 with collapse(2) tests run for %d times\n", iterations);
-	if(run_single) {
-		printf("Comparing resulting arrays\n");
-		printf("Comparison Result = %d\n", compareImages(dests1, destm1));
-		printf("Comparison Result = %d\n", compareImages(dests2, destm2));
-	}
-	printResult(avg);
-
-	avg = 0;
-	for (int i = 0; i < iterations; ++i)
-	{
-		avg = (avg * i + analyzeArrayM1wC(src, destm1, destm2)) / (i + 1);
-	}
-	printf("Multiple2 tests run for %d times\n", iterations);
-	if(run_single) {
-		printf("Comparing resulting arrays\n");
-		printf("Comparison Result = %d\n", compareImages(dests1, destm1));
-		printf("Comparison Result = %d\n", compareImages(dests2, destm2));
-	}
-	printResult(avg);
 
 	return 0;
 }
@@ -111,4 +51,95 @@ double getWallTime()
         return 0;
     }
     return (double)time.tv_sec + (double)time.tv_usec * .000001;
+}
+
+double singleImpl(ImageData *src, ImageData *intmd, ImageData *result, int limit)
+{
+	int width = src->width;
+	int height = src->height;
+	unsigned char *imgbuf = src->buf;
+	unsigned char *intmdbuf = intmd->buf;
+	unsigned char *resultbuf = result->buf;
+
+	double start = getWallTime();
+
+	for(int row = 1; row < height - 1; row++) {
+		for(int col = 1; col < width - 1; col++) {
+			int pos = row * width + col;
+
+			unsigned char maxValue = imgbuf[pos];
+			int direction = 10;
+
+			// don't want to use a for loop for a 3x3 grid
+			// it may reduce the performance as it will get called so often
+			if(maxValue < imgbuf[pos - width - 1]) {
+				maxValue = imgbuf[pos - width - 1];
+				direction = 8;
+			}
+			if(maxValue < imgbuf[pos - width]) {
+				maxValue = imgbuf[pos - width];
+				direction = 1;
+			}
+			if(maxValue < imgbuf[pos - width + 1]) {
+				maxValue = imgbuf[pos - width + 1];
+				direction = 2;
+			}
+			if(maxValue < imgbuf[pos - 1]) {
+				maxValue = imgbuf[pos - 1];
+				direction = 7;
+			}
+			if(maxValue < imgbuf[pos + 1]) {
+				maxValue = imgbuf[pos + 1];
+				direction = 3;
+			}
+			if(maxValue < imgbuf[pos + width - 1]) {
+				maxValue = imgbuf[pos - width - 1];
+				direction = 6;
+			}
+			if(maxValue < imgbuf[pos + width]) {
+				maxValue = imgbuf[pos - width];
+				direction = 5;
+			}
+			if(maxValue < imgbuf[pos + width + 1]) {
+				maxValue = imgbuf[pos - width + 1];
+				direction = 4;
+			}
+
+			intmdbuf[pos] = direction;
+		}
+	}
+
+	for(int row = 2; row < width - 2; row++) {
+		for(int col = 2; col < height - 2; col++) {
+
+			int posOrig = (row - 2) * width + col;
+			int pos = posOrig;
+
+			int xtop = 0;
+			int ytop = 0;
+
+			for (int i = 0; i < 5; ++i)
+			{
+				pos = pos + width * i;
+				for (int j = 0; j < 5; ++j)
+				{
+					if(imgbuf[pos + j]) {
+						xtop = xtop + xx[intmdbuf[pos + j]];
+						ytop = ytop + yy[intmdbuf[pos + j]];
+					}
+				}
+			}
+
+			int result = sqrt(pow(xtop, 2) + pow(ytop, 2));
+
+			if(result < limit)
+				result = 0;
+
+			resultbuf[posOrig] = result;
+		}
+	}
+
+	double end = getWallTime();
+
+	return end - start;
 }

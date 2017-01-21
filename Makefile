@@ -19,7 +19,7 @@ $(BUILDDIR)/imagehelper.o: $(SRCDIR)/imagehelper.c
 
 $(BUILDDIR)/imganalyze.o: $(SRCDIR)/imganalyze.c
 	@echo compiling $(EXECUTABLE)
-	@$(CC) $(CFLAGS) $(SRCDIR)/imganalyze.c -c -o $(BUILDDIR)/imganalyze.o
+	@$(CC) $(CFLAGS) $(SRCDIR)/imganalyze.c -c -o $(BUILDDIR)/imganalyze.o -lm
 
 create_builddir:
 	@mkdir -p $(BUILDDIR)	
