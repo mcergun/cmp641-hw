@@ -7,6 +7,7 @@ typedef struct _imageData {
 	int height;
 } ImageData;
 
+// used for algorithm's 2nd step
 static int xx[] = {0, 1, 1, 1, 0, -1, -1, -1};
 static int yy[] = {-1, -1, 0, 1, 1, 1, 0, -1};
 
