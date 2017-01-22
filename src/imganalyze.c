@@ -42,11 +42,15 @@ int main(int argc, char *argv[])
 
 	if(argc == 2) {
 		thread_count = atoi(argv[1]);
+	} else if(argc == 3) {
+		thread_count = atoi(argv[1]);
+		run_single = atoi(argv[2]);
 	}
 
 	printf("Running with %d threads\n", thread_count);
 
-	CALL_IMPL(singleCoreImpl, src, intmd, result);
+	if(run_single)
+		CALL_IMPL(singleCoreImpl, src, intmd, result);
 	CALL_IMPL(multiCoreImpl, src, intmd, result);
 	CALL_IMPL(multiCoreImpl2, src, intmd, result);
 
@@ -103,15 +107,15 @@ double singleCoreImpl(ImageData *src, ImageData *intmd, ImageData *result, int l
 				direction = 3;
 			}
 			if(maxValue < imgbuf[pos + width - 1]) {
-				maxValue = imgbuf[pos - width - 1];
+				maxValue = imgbuf[pos + width - 1];
 				direction = 6;
 			}
 			if(maxValue < imgbuf[pos + width]) {
-				maxValue = imgbuf[pos - width];
+				maxValue = imgbuf[pos + width];
 				direction = 5;
 			}
 			if(maxValue < imgbuf[pos + width + 1]) {
-				maxValue = imgbuf[pos - width + 1];
+				maxValue = imgbuf[pos + width + 1];
 				direction = 4;
 			}
 
@@ -192,15 +196,15 @@ double multiCoreImpl(ImageData *src, ImageData *intmd, ImageData *result, int li
 				direction = 3;
 			}
 			if(maxValue < imgbuf[pos + width - 1]) {
-				maxValue = imgbuf[pos - width - 1];
+				maxValue = imgbuf[pos + width - 1];
 				direction = 6;
 			}
 			if(maxValue < imgbuf[pos + width]) {
-				maxValue = imgbuf[pos - width];
+				maxValue = imgbuf[pos + width];
 				direction = 5;
 			}
 			if(maxValue < imgbuf[pos + width + 1]) {
-				maxValue = imgbuf[pos - width + 1];
+				maxValue = imgbuf[pos + width + 1];
 				direction = 4;
 			}
 
@@ -282,15 +286,15 @@ double multiCoreImpl2(ImageData *src, ImageData *intmd, ImageData *result, int l
 				direction = 3;
 			}
 			if(maxValue < imgbuf[pos + width - 1]) {
-				maxValue = imgbuf[pos - width - 1];
+				maxValue = imgbuf[pos + width - 1];
 				direction = 6;
 			}
 			if(maxValue < imgbuf[pos + width]) {
-				maxValue = imgbuf[pos - width];
+				maxValue = imgbuf[pos + width];
 				direction = 5;
 			}
 			if(maxValue < imgbuf[pos + width + 1]) {
-				maxValue = imgbuf[pos - width + 1];
+				maxValue = imgbuf[pos + width + 1];
 				direction = 4;
 			}
 
