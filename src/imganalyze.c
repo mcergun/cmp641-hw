@@ -122,20 +122,18 @@ double singleCoreImpl(ImageData *src, ImageData *intmd, ImageData *result, int l
 	for(int row = 2; row < width - 2; row++) {
 		for(int col = 2; col < height - 2; col++) {
 
-			int posOrig = (row - 2) * width + col;
-			int pos = posOrig;
+			int pos = row * width + col;
 
 			int xtop = 0;
 			int ytop = 0;
 
-			for (int i = 0; i < 5; ++i)
+			for (int i = -2 * width; i < 3 * width; i += width)
 			{
-				pos = pos + width * i;
-				for (int j = 0; j < 5; ++j)
+				for (int j = -2; j < 3; ++j)
 				{
-					if(imgbuf[pos + j]) {
-						xtop = xtop + xx[intmdbuf[pos + j]];
-						ytop = ytop + yy[intmdbuf[pos + j]];
+					if(imgbuf[pos + i + j]) {
+						xtop = xtop + xx[intmdbuf[pos + i + j]];
+						ytop = ytop + yy[intmdbuf[pos + i + j]];
 					}
 				}
 			}
@@ -145,7 +143,7 @@ double singleCoreImpl(ImageData *src, ImageData *intmd, ImageData *result, int l
 			if(result < limit)
 				result = 0;
 
-			resultbuf[posOrig] = result;
+			resultbuf[pos] = result;
 		}
 	}
 
@@ -213,20 +211,18 @@ double multiCoreImpl(ImageData *src, ImageData *intmd, ImageData *result, int li
 	for(int row = 2; row < width - 2; row++) {
 		for(int col = 2; col < height - 2; col++) {
 
-			int posOrig = (row - 2) * width + col;
-			int pos = posOrig;
+			int pos = row * width + col;
 
 			int xtop = 0;
 			int ytop = 0;
 
-			for (int i = 0; i < 5; ++i)
+			for (int i = -2 * width; i < 3 * width; i += width)
 			{
-				pos = pos + width * i;
-				for (int j = 0; j < 5; ++j)
+				for (int j = -2; j < 3; ++j)
 				{
-					if(imgbuf[pos + j]) {
-						xtop = xtop + xx[intmdbuf[pos + j]];
-						ytop = ytop + yy[intmdbuf[pos + j]];
+					if(imgbuf[pos + i + j]) {
+						xtop = xtop + xx[intmdbuf[pos + i + j]];
+						ytop = ytop + yy[intmdbuf[pos + i + j]];
 					}
 				}
 			}
@@ -236,7 +232,7 @@ double multiCoreImpl(ImageData *src, ImageData *intmd, ImageData *result, int li
 			if(result < limit)
 				result = 0;
 
-			resultbuf[posOrig] = result;
+			resultbuf[pos] = result;
 		}
 	}
 
@@ -307,20 +303,18 @@ double multiCoreImpl2(ImageData *src, ImageData *intmd, ImageData *result, int l
 		#pragma omp for nowait
 		for(int col = 2; col < height - 2; col++) {
 
-			int posOrig = (row - 2) * width + col;
-			int pos = posOrig;
+			int pos = row * width + col;
 
 			int xtop = 0;
 			int ytop = 0;
 
-			for (int i = 0; i < 5; ++i)
+			for (int i = -2 * width; i < 3 * width; i += width)
 			{
-				pos = pos + width * i;
-				for (int j = 0; j < 5; ++j)
+				for (int j = -2; j < 3; ++j)
 				{
-					if(imgbuf[pos + j]) {
-						xtop = xtop + xx[intmdbuf[pos + j]];
-						ytop = ytop + yy[intmdbuf[pos + j]];
+					if(imgbuf[pos + i + j]) {
+						xtop = xtop + xx[intmdbuf[pos + i + j]];
+						ytop = ytop + yy[intmdbuf[pos + i + j]];
 					}
 				}
 			}
@@ -330,7 +324,7 @@ double multiCoreImpl2(ImageData *src, ImageData *intmd, ImageData *result, int l
 			if(result < limit)
 				result = 0;
 
-			resultbuf[posOrig] = result;
+			resultbuf[pos] = result;
 		}
 	}
 
