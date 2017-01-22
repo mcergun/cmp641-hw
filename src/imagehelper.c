@@ -6,10 +6,6 @@
 #include <time.h>
 #include <math.h>
 
-static int width = 640;
-static int height = 512;
-static int thread_count = 6;
-
 ImageData * initializeImageData(int height, int width)
 {
 	srand(time(0));
