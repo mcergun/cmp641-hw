@@ -314,12 +314,25 @@ double multiCoreImpl2(ImageData *src, ImageData *intmd, ImageData *result, int l
 
 			for (int i = -2 * width; i < 3 * width; i += width)
 			{
-				for (int j = -2; j < 3; ++j)
-				{
-					if(imgbuf[pos + i + j]) {
-						xtop = xtop + xx[intmdbuf[pos + i + j]];
-						ytop = ytop + yy[intmdbuf[pos + i + j]];
-					}
+				if(imgbuf[pos + i - 2]) {
+					xtop = xtop + xx[intmdbuf[pos + i - 2]];
+					ytop = ytop + yy[intmdbuf[pos + i - 2]];
+				}
+				if(imgbuf[pos + i - 1]) {
+					xtop = xtop + xx[intmdbuf[pos + i - 1]];
+					ytop = ytop + yy[intmdbuf[pos + i - 1]];
+				}
+				if(imgbuf[pos + i]) {
+					xtop = xtop + xx[intmdbuf[pos + i]];
+					ytop = ytop + yy[intmdbuf[pos + i]];
+				}
+				if(imgbuf[pos + i + 1]) {
+					xtop = xtop + xx[intmdbuf[pos + i + 1]];
+					ytop = ytop + yy[intmdbuf[pos + i + 1]];
+				}
+				if(imgbuf[pos + i + 2]) {
+					xtop = xtop + xx[intmdbuf[pos + i + 2]];
+					ytop = ytop + yy[intmdbuf[pos + i + 2]];
 				}
 			}
 
