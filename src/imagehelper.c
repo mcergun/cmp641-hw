@@ -58,6 +58,8 @@ int compareImages(ImageData *img1, ImageData *img2)
 	unsigned char *buf1 = img1->buf;
 	unsigned char *buf2 = img2->buf;
 
+	printf("Comparing two buffers %p, %p of size %d\n", buf1, buf2, bufSize);
+
 	int isEqual = 1;
 	for (int i = 0; i < bufSize && isEqual; ++i)
 	{

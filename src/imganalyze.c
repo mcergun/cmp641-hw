@@ -40,6 +40,10 @@ int main(int argc, char *argv[])
 	ImageData *intmd = initializeEmptyImageData(height, width);
 	ImageData *result = initializeEmptyImageData(height, width);
 
+	// to check if result of OpenMP algorithms are the same as serial one
+	ImageData *intmdmp = initializeEmptyImageData(height, width);
+	ImageData *resultmp = initializeEmptyImageData(height, width);
+
 	if(argc == 2) {
 		thread_count = atoi(argv[1]);
 	} else if(argc == 3) {
@@ -51,8 +55,32 @@ int main(int argc, char *argv[])
 
 	if(run_single)
 		CALL_IMPL(singleCoreImpl, src, intmd, result);
-	CALL_IMPL(multiCoreImpl, src, intmd, result);
-	CALL_IMPL(multiCoreImpl2, src, intmd, result);
+	
+	CALL_IMPL(multiCoreImpl, src, intmdmp, resultmp);
+	if(run_single) {
+		if(compareImages(intmd, intmdmp))
+			printf("Method1's intermediate results are the same as serial algorithm\n");
+		else
+			printf("Method1's intermediate results are different than serial algorithm\n");
+		if(compareImages(result, resultmp))
+			printf("Method1's final results are the same as serial algorithm\n");
+		else
+			printf("Method1's final results are different than serial algorithm\n");
+		printf("\n");
+	}
+
+	CALL_IMPL(multiCoreImpl2, src, intmdmp, resultmp);
+	if(run_single) {
+		if(compareImages(intmd, intmdmp))
+			printf("Method2's intermediate results are the same as serial algorithm\n");
+		else
+			printf("Method2's intermediate results are different than serial algorithm\n");
+		if(compareImages(result, resultmp))
+			printf("Method2's final results are the same as serial algorithm\n");
+		else
+			printf("Method2's final results are different than serial algorithm\n");
+		printf("\n");
+	}
 
 
 	return 0;
